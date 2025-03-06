@@ -1,0 +1,117 @@
+[
+  {
+      "type": "text",
+      "title": "What is Temporal Difference Learning?",
+      "content": "Temporal Difference (TD) learning is a key method in Reinforcement Learning that merges the sample-based learning of Monte Carlo methods with the bootstrapping of dynamic programming. Unlike Monte Carlo, which waits for an episode to complete before updating value estimates, TD learning updates estimates incrementally after each step using the TD error—the difference between the predicted value and a better estimate based on the next state. This makes TD learning highly efficient for real-time learning in sequential decision-making problems."
+  },
+  {
+      "type": "text",
+      "title": "How TD Learning Compares to Other RL Methods",
+      "content": "TD learning stands out from Monte Carlo methods by not requiring complete episodes, enabling faster learning through bootstrapping—updating estimates based on other estimates. Compared to dynamic programming, TD learning is model-free, meaning it doesn’t need a known environment model, making it versatile for real-world tasks. However, this reliance on bootstrapping introduces bias, unlike the unbiased but variance-heavy Monte Carlo approach, striking a balance between efficiency and accuracy."
+  },
+  {
+    "type": "math",
+    "title": "TD(0) Update Rule",
+    "content": "V(S_t) \\leftarrow V(S_t) + \\alpha [R_{t+1} + \\gamma V(S_{t+1}) - V(S_t)]"
+  },
+  {
+      "type": "pseudocode",
+      "title": "TD(0) Pseudocode",
+      "content": "Initialize V(s) = 0 for all states s\nFor each episode:\n    S ← initial state\n    While not terminal:\n        A ← policy(S)\n        Take action A, observe R, S'\n        V(S) ← V(S) + α [R + γ V(S') - V(S)]\n        S ← S'"
+  },
+  {
+    "type": "code",
+    "language": "python",
+    "title": "TD(0) Implementation",
+    "content": "from collections import defaultdict\nimport numpy as np\ndef td_zero(env, num_episodes, alpha=0.1, gamma=0.99):\n    V = defaultdict(float)\n    for _ in range(num_episodes):\n        state = env.reset()\n        done = False\n        while not done:\n            action = env.action_space.sample()  # Placeholder policy\n            next_state, reward, done, _ = env.step(action)\n            V[state] += alpha * (reward + gamma * V[next_state] - V[state])\n            state = next_state\n    return V"
+  },
+  {
+      "type": "text",
+      "title": "The Role of TD Error",
+      "content": "At the heart of TD learning is the TD error, which quantifies the difference between an agent’s current value estimate and a refined estimate derived from the reward and next state. For instance, in TD(0), the error is δ = R + γV(S') - V(S), where R is the immediate reward, γ is the discount factor (0 ≤ γ < 1), and V(S) and V(S') are the values of the current and next states. This error drives the update: V(S) ← V(S) + αδ, where α is the learning rate, enabling gradual convergence to true values."
+  },
+  {
+      "type": "text",
+      "title": "Applications of TD Learning",
+      "content": "TD learning powers a wide range of applications. In gaming, TD-Gammon used it to master backgammon. In robotics, it helps robots navigate complex environments. In finance, it optimizes trading strategies by learning from market dynamics. Its strength lies in learning from partial episodes, making it ideal for real-time systems like autonomous driving or adaptive control, where immediate feedback is critical."
+  },
+  {
+    "type": "flow_chart",
+    "title": "TD Learning Process Flow",
+    "flowchart_data": {
+        "nodes": ["Start", "Initialize V(s)", "Start Episode", "Choose Action", "Take Action", "Observe R, S'", "Compute TD Error", "Update V(s)", "Done?", "End Episode", "End"],
+        "edges": [
+            ["Start", "Initialize V(s)"],
+            ["Initialize V(s)", "Start Episode"],
+            ["Start Episode", "Choose Action"],
+            ["Choose Action", "Take Action"],
+            ["Take Action", "Observe R, S'"],
+            ["Observe R, S'", "Compute TD Error"],
+            ["Compute TD Error", "Update V(s)"],
+            ["Update V(s)", "Done?"],
+            ["Done?", "Choose Action", "No"],
+            ["Done?", "End Episode", "Yes"],
+            ["End Episode", "Start Episode"],
+            ["End Episode", "End"]
+        ]
+    }
+  },
+  {
+      "type": "text",
+      "title": "Strengths and Weaknesses of TD Learning",
+      "content": "Strengths:\n- Learns from incomplete episodes, enabling online learning\n- More sample-efficient than Monte Carlo due to step-by-step updates\n- Model-free, adaptable to unknown environments\nWeaknesses:\n- Biased estimates from bootstrapping\n- Sensitive to learning rate (α) and discount factor (γ)\n- May struggle with convergence in non-stationary or highly noisy environments"
+  },
+  {
+      "type": "math",
+      "title": "SARSA Update Rule",
+      "content": "Q(S_t, A_t) \\leftarrow Q(S_t, A_t) + \\alpha [R_{t+1} + \\gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)]"
+  },
+  {
+      "type": "math",
+      "title": "Q-Learning Update Rule",
+      "content": "Q(S_t, A_t) \\leftarrow Q(S_t, A_t) + \\alpha [R_{t+1} + \\gamma \\max_a Q(S_{t+1}, a) - Q(S_t, A_t)]"
+  },
+  {
+      "type": "code",
+      "language": "python",
+      "title": "Q-Learning Implementation",
+      "content": "def q_learning(env, num_episodes, alpha=0.1, gamma=0.99, epsilon=0.1):\n    Q = defaultdict(lambda: np.zeros(env.action_space.n))\n    for _ in range(num_episodes):\n        state = env.reset()\n        done = False\n        while not done:\n            if np.random.rand() < epsilon:\n                action = env.action_space.sample()\n            else:\n                action = np.argmax(Q[state])\n            next_state, reward, done, _ = env.step(action)\n            best_next_action = np.argmax(Q[next_state])\n            td_target = reward + gamma * Q[next_state][best_next_action]\n            Q[state][action] += alpha * (td_target - Q[state][action])\n            state = next_state\n    return Q"
+  },
+  {
+    "type": "interactive_code",
+    "title": "Interactive Q-Learning in Frozen Lake",
+    "content": "import gymnasium as gym\nfrom collections import defaultdict\nimport numpy as np\nenv = gym.make('FrozenLake-v1')\nQ = defaultdict(lambda: np.zeros(env.action_space.n))\nfor _ in range(1000):\n    state = env.reset()\n    if isinstance(state, tuple): state = state[0]  # Handle new gymnasium API\n    done = False\n    while not done:\n        action = np.argmax(Q[state]) if np.random.rand() > 0.1 else env.action_space.sample()\n        next_state, reward, done, _, _ = env.step(action)\n        if isinstance(next_state, tuple): next_state = next_state[0]  # Handle new API\n        Q[state][action] += 0.1 * (reward + 0.99 * np.max(Q[next_state]) - Q[state][action])\n        state = next_state\nstate = env.reset()\nif isinstance(state, tuple): state = state[0]\ndone = False\nwhile not done:\n    action = np.argmax(Q[state])\n    next_state, reward, done, _, _ = env.step(action)\n    if isinstance(next_state, tuple): state = next_state[0]\n    else: state = next_state\n    env.render()"
+  },
+  {
+      "type": "table",
+      "title": "Comparison of TD Learning Algorithms",
+      "headers": ["Algorithm", "Update Rule", "Policy Type", "Key Feature"],
+      "rows": [
+          ["TD(0)", "V(S) ← V(S) + α[R + γV(S') - V(S)]", "On-policy", "Simplest TD method for value estimation"],
+          ["SARSA", "Q(S,A) ← Q(S,A) + α[R + γQ(S',A') - Q(S,A)]", "On-policy", "Safe exploration with policy consistency"],
+          ["Q-Learning", "Q(S,A) ← Q(S,A) + α[R + γmax_a Q(S',a) - Q(S,A)]", "Off-policy", "Optimal policy learning with exploration"]
+      ]
+  },
+  {
+      "type": "pseudocode",
+      "title": "SARSA Pseudocode",
+      "content": "Initialize Q(s,a) = 0 for all s, a\nFor each episode:\n    S ← initial state\n    A ← ε-greedy(Q, S)\n    While not terminal:\n        Take action A, observe R, S'\n        A' ← ε-greedy(Q, S')\n        Q(S,A) ← Q(S,A) + α [R + γ Q(S',A') - Q(S,A)]\n        S ← S'\n        A ← A'"
+  },
+  {
+      "type": "pseudocode",
+      "title": "Q-Learning Pseudocode",
+      "content": "Initialize Q(s,a) = 0 for all s, a\nFor each episode:\n    S ← initial state\n    While not terminal:\n        A ← ε-greedy(Q, S)\n        Take action A, observe R, S'\n        Q(S,A) ← Q(S,A) + α [R + γ max_a Q(S',a) - Q(S,A)]\n        S ← S'"
+  },
+  {
+      "type": "static_chart",
+      "title": "TD(0) Value Convergence",
+      "chart_type": "line",
+      "data": {
+          "x": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+          "y": [0.0, 0.05, 0.12, 0.25, 0.38, 0.49, 0.58, 0.65, 0.71, 0.75, 0.78]
+      },
+      "x_label": "Episodes",
+      "y_label": "Value of Initial State",
+      "description": "This chart illustrates the convergence of the value estimate for the initial state in a simple RL problem using TD(0) over 100 episodes, with α=0.1 and γ=0.99."
+  }
+]

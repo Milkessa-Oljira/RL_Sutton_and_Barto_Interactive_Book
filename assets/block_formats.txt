@@ -1,0 +1,165 @@
+1, Text Block
+{
+  "format_type": "text",
+  "data": {
+    "title": "Chapter 1: Introduction",
+    "heading_level": 1,
+    "text": "This is the introductory text. **Bold**, _italic_, and __underline__ formatting can be applied."
+  }
+}
+
+2, Math Block
+{
+  "format_type": "math",
+  "data": {
+    "latex": "E=mc^2",
+    "caption": "Einstein's famous equation"
+  }
+}
+
+3, Static Chart Block
+{
+  "format_type": "static_chart",
+  "data": {
+    "chart_type": "line",
+    "title": "Sample Line Chart",
+    "x_label": "Time",
+    "y_label": "Value",
+    "data": {
+      "x": [0, 1, 2, 3, 4],
+      "y": [0, 1, 4, 9, 16]
+    }
+  }
+}
+
+4, Dynamic Chart Block
+{
+  "format_type": "dynamic_chart",
+  "data": {
+    "chart_type": "line",
+    "title": "Dynamic Chart Example",
+    "x_label": "Time",
+    "y_label": "Value",
+    "data": {
+      "x": [0, 1, 2, 3, 4],
+      "y": [0, 1, 4, 9, 16]
+    },
+    "interval": 500
+  }
+}
+
+5, Image Block
+{
+  "format_type": "image",
+  "data": {
+    "image_path": "path/to/image.jpg",
+    "caption": "An illustrative image"
+  }
+}
+
+6, Code Block
+{
+  "format_type": "code",
+  "data": {
+    "code": "def hello_world():\n    print('Hello, World!')",
+    "language": "python"
+  }
+}
+
+7, Pseudocode Block
+{
+  "format_type": "pseudocode",
+  "data": {
+    "pseudocode": "FUNCTION Factorial(n):\n    IF n <= 1 THEN\n        RETURN 1\n    ELSE\n        RETURN n * Factorial(n-1)"
+  }
+}
+
+8, Interactive Code Block
+{
+  "format_type": "interactive_code",
+  "data": {
+    "code": "print('This is an interactive code cell')"
+  }
+}
+
+9, Animation Block
+{
+  "format_type": "animation",
+  "data": {
+    "width": 300,
+    "height": 200,
+    "duration": 5000
+  }
+}
+
+10, interactive Widget Block
+{
+  "format_type": "interactive_widget",
+  "data": {
+    "widget_type": "slider",
+    "label": "Adjust parameter:",
+    "min": 0,
+    "max": 100,
+    "initial": 50
+  }
+}
+
+11, Simulation Block
+{
+  "format_type": "simulation",
+  "data": {
+    "simulation_type": "random_walk",
+    "steps": 100
+  }
+}
+
+12, Table Block
+{
+  "format_type": "table",
+  "data": {
+    "headers": ["Name", "Value"],
+    "rows": [
+      ["Alpha", 1],
+      ["Beta", 2]
+    ]
+  }
+}
+
+13, Flow Chart Block
+{
+  "format_type": "flow_chart",
+  "data": {
+    "nodes": [
+      {"id": 1, "text": "Start", "x": 50, "y": 50},
+      {"id": 2, "text": "Process", "x": 200, "y": 50},
+      {"id": 3, "text": "End", "x": 350, "y": 50}
+    ],
+    "edges": [
+      {"from": 1, "to": 2},
+      {"from": 2, "to": 3}
+    ]
+  }
+}
+
+14, 3D Model Block
+{
+  "format_type": "3d_model",
+  "data": {
+    "title": "3D Scatter Plot",
+    "model_type": "scatter",
+    "data": {
+      "x": [1, 2, 3],
+      "y": [4, 5, 6],
+      "z": [7, 8, 9]
+    }
+  }
+}
+
+15, SVG GIF Block
+{
+  "format_type": "svg_gif",
+  "data": {
+    "gif_path": "path/to/animation.gif",
+    "caption": "An SVG-based animated GIF"
+  }
+}

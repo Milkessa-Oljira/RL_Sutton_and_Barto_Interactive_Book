@@ -1,0 +1,6 @@
+{
+    "background": "images/universe_background.png",
+    "concepts": [
+        {"name": "concept_1", "x": 100, "y": 200, "icon": "assets/star.jpg"}
+    ]
+}
