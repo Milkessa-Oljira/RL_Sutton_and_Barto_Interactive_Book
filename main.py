@@ -1,7 +1,6 @@
 import sys
 import json
-from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QDialog, QScrollArea, QWidget, QVBoxLayout, QLabel, QGraphicsPixmapItem
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QScrollArea, QWidget, QVBoxLayout, QLabel, QComboBox, QHBoxLayout
 from PyQt5.QtCore import Qt
 from cards.text_card import TextCard
 from cards.math_card import MathCard
@@ -28,102 +27,90 @@ card_types = {
     "flow_chart": FlowChartCard
 }
 
-class ConceptItem(QGraphicsPixmapItem):
-    """Custom QGraphicsPixmapItem for clickable concept icons."""
-    def __init__(self, concept_name, parent=None):
-        super().__init__(parent)
-        self.concept_name = concept_name
-        self.setCursor(Qt.PointingHandCursor)  # Show hand cursor on hover
-
-    def mousePressEvent(self, event):
-        """Open the concept window when clicked."""
-        concept_window = ConceptWindow(self.concept_name)
-        concept_window.exec_()
-
-class ConceptWindow(QDialog):
-    """Dialog window to display a concept's content using cards."""
-    def __init__(self, concept_name, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle(f"{concept_name.replace('_', ' ').title()} - RL Universe")
-        self.setMinimumSize(600, 400)
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #1e1e2f;
-                color: #ffffff;
-                font-family: 'Arial', sans-serif;
-            }
-            QScrollArea {
-                border: none;
-            }
-        """)
-
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        content_widget = QWidget()
-        layout = QVBoxLayout()
-
-        try:
-            with open(f"concepts/{concept_name}.json", "r") as f:
-                concept_data = json.load(f)
-        except FileNotFoundError:
-            layout.addWidget(QLabel("Concept file not found."))
-        except json.JSONDecodeError:
-            layout.addWidget(QLabel("Invalid JSON format in concept file."))
-        else:
-            for item in concept_data:
-                card_type = item.get("type")
-                if card_type in card_types:
-                    card_class = card_types[card_type]
-                    card_widget = card_class(item)
-                    layout.addWidget(card_widget)
-                else:
-                    layout.addWidget(QLabel(f"Unknown card type: {card_type}"))
-
-        content_widget.setLayout(layout)
-        scroll_area.setWidget(content_widget)
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(scroll_area)
-        self.setLayout(main_layout)
-
 class MainWindow(QMainWindow):
-    """Main window displaying the universe visualization."""
     def __init__(self):
         super().__init__()
         self.setWindowTitle("RL Universe")
         self.setMinimumSize(800, 600)
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: #0d0d1a;
-            }
-        """)
+        self.current_concept = 1
 
-        view = QGraphicsView()
-        scene = QGraphicsScene()
-        view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # Create a central widget with vertical layout
+        central_widget = QWidget()
+        central_layout = QVBoxLayout(central_widget)
+        central_layout.setContentsMargins(0, 0, 0, 0)
+        central_layout.setSpacing(0)
+        
+        # Top bar for theme selection (positioned at the top-right)
+        top_bar = QHBoxLayout()
+        top_bar.addStretch()
+        self.theme_combo = QComboBox()
+        # Available theme background options (light modes first, then dark modes)
+        self.themes = ["#fffaf0", "#f0f8ff", "#f5f5dc", "#272822", "#2a2a3d"]
+        self.theme_combo.addItems(self.themes)
+        self.theme_combo.currentIndexChanged.connect(self.change_theme)
+        top_bar.addWidget(self.theme_combo)
+        central_layout.addLayout(top_bar)
+        
+        # Scroll area for the concept content
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.content_widget = QWidget()
+        self.content_layout = QVBoxLayout(self.content_widget)
+        self.scroll_area.setWidget(self.content_widget)
+        central_layout.addWidget(self.scroll_area)
+        
+        self.setCentralWidget(central_widget)
+        self.loadConcept(self.current_concept)
+        self.change_theme()  # apply initial theme
 
+    def loadConcept(self, concept_number):
+        # Clear previous content
+        while self.content_layout.count():
+            child = self.content_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        # Load the JSON file for the given concept number
         try:
-            with open("universe.json", "r") as f:
-                universe_data = json.load(f)
+            with open(f"concepts/concept_{concept_number}.json", "r") as f:
+                concept_data = json.load(f)
         except FileNotFoundError:
-            scene.addText("universe.json not found.")
+            self.content_layout.addWidget(QLabel(f"Concept file concept_{concept_number}.json not found."))
+            return
         except json.JSONDecodeError:
-            scene.addText("Invalid JSON in universe.json.")
-        else:
-            background = QPixmap(universe_data.get("background", "images/default_background.png"))
-            scene.setSceneRect(0, 0, background.width(), background.height())
-            scene.addPixmap(background)
-            for concept in universe_data.get("concepts", []):
-                icon_path = concept.get("icon", "images/default_star.png")
-                icon = QPixmap(icon_path)
-                item = ConceptItem(concept["name"])
-                item.setPixmap(icon.scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-                item.setPos(concept["x"], concept["y"])
-                item.setToolTip(concept["name"].replace("_", " ").title())
-                scene.addItem(item)
+            self.content_layout.addWidget(QLabel(f"Invalid JSON format in concept_{concept_number}.json."))
+            return
 
-        view.setScene(scene)
-        self.setCentralWidget(view)
+        # Create and add each card widget based on its type
+        for item in concept_data:
+            card_type = item.get("type")
+            if card_type in card_types:
+                card_class = card_types[card_type]
+                card_widget = card_class(item)
+                self.content_layout.addWidget(card_widget)
+            else:
+                self.content_layout.addWidget(QLabel(f"Unknown card type: {card_type}"))
+
+    def change_theme(self):
+        # Get the selected theme background color
+        selected = self.theme_combo.currentText()
+        # Determine contrasting text color based on light vs dark backgrounds
+        light_themes = ["#fffaf0", "#f0f8ff", "#f5f5dc"]
+        if selected in light_themes:
+            text_color = "#333333"
+        else:
+            text_color = "#e0e0e0"
+        # Update global stylesheet for the main window and common widgets
+        self.setStyleSheet(f"""
+            QMainWindow {{
+                background-color: {selected};
+                color: {text_color};
+                font-family: 'Georgia', serif;
+            }}
+            QLabel, QTextBrowser, QTextEdit {{
+                color: {text_color};
+            }}
+        """)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

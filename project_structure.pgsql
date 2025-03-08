@@ -1,26 +1,19 @@
 RL_SUTTON_AND_BARTO_INTERACTIVE_BOOK/
 ├── assets/
-│    └── cover_page.jpg
-├── message_cards/
-│    ├── text_block.py
-│    ├── math_block.py
-│    ├── static_chart_block.py
-│    ├── dynamic_chart_block.py
-│    ├── image_block.py
-│    ├── code_block.py
-│    ├── pseudocode_block.py
-│    ├── interactive_code_block.py
-│    ├── animation_block.py
-│    ├── interactive_widget_block.py
-│    ├── simulation_block.py
-│    ├── table_block.py
-│    ├── flow_chart_block.py
-│    ├── _3d_model_block.py
-│    └── svg_gif_block.py
+│    └── ""empty for now but this is where all the resource files like images and animations go""
+├── cards/
+│    ├── animation_card.py
+│    ├── math_card.py
+│    ├── static_chart_card.py
+│    ├── image_card.py
+│    ├── code_card.py
+│    ├── pseudocode_card.py
+│    ├── interactive_code_card.py
+│    ├── animation_card.py
+│    ├── table_card.py
+│    ├── flow_chart_card.py
 ├── pages/
-│    └── page_#.json  (each page as JSON; see below for the schema)
-├── cover_page.py
-├── table_of_content.py
+│    └── concept_#.json  (each page as JSON)
 ├── main.py
 ├── requirements.txt
 ├── README.md
